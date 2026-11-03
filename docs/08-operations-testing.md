@@ -1,9 +1,10 @@
 # Developer Operations, QA and Release Gates
 
 ## 1. Local runtime plan
-Use stable Node LTS, Python 3.12+, PostgreSQL 16+, Redis optional, Docker Compose. Expected target commands **to implement**, not yet operational:
+The development MVP now implements the commands below using Node 24 LTS, Python 3.12+, PostgreSQL 16 and Docker Compose. See [the development guide](12-development.md) for editor access, tested workflows and remaining production gates. Redis is deferred.
 ```bash
 cp .env.example .env
+make install
 make dev-up
 make db-migrate
 make seed-demo
@@ -11,6 +12,8 @@ make test
 make dev-down
 ```
 Never commit real credentials. `.env.example` contains only names/placeholders.
+
+If you copy `.env.example` yourself, generate a random `ADMIN_TOKEN` of at least 32 characters before starting. Alternatively omit the copy: `make dev-up` generates `.env` and a local token automatically when the file is absent. Integration variables below describe the original planned stack; only `DATABASE_URL`, `ADMIN_TOKEN`, `API_INTERNAL_URL` and `FRONTEND_PUBLIC_URL` are currently required/supported by this slice.
 
 | Environment variable | Purpose |
 |---|---|

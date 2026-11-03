@@ -1,0 +1,54 @@
+name: Validate Elsewhere
+on: [push, pull_request]
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-bookworm
+        env:
+          POSTGRES_USER: elsewhere
+          POSTGRES_PASSWORD: elsewhere
+          POSTGRES_DB: elsewhere
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U elsewhere" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://elsewhere:elsewhere@127.0.0.1:5432/elsewhere
+      TEST_DATABASE_URL: postgresql+psycopg://elsewhere:elsewhere@127.0.0.1:5432/elsewhere
+      ADMIN_TOKEN: ci-only-token-xxxxxxxxxxxxxxxxxxxxxxxx
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.4"
+          python-version: "3.12"
+      - run: uv sync --project apps/api --frozen
+      - run: uv run alembic upgrade head && uv run alembic check
+        working-directory: apps/api
+      - run: uv run python -m app.seed && uv run python -m app.seed
+        working-directory: apps/api
+      - run: uv run pytest -q
+        working-directory: apps/api
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.4"
+          python-version: "3.12"
+      - run: uv sync --project apps/api --frozen
+      - run: npm ci && npm run typecheck && npm run build
+        working-directory: apps/web
+      - run: npx playwright install --with-deps chromium && npm run test:e2e
+        working-directory: apps/web
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-results
+          path: apps/web/test-results/

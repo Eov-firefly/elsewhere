@@ -1,4 +1,4 @@
-# Elsewhere Global — MVP Product & Engineering Specification
+# Elsewhere Global — A finite daily discovery experience
 
 > Version 0.1 | 2026-11-03 | English-first, 3 curated discoveries per day
 
@@ -16,6 +16,8 @@ Elsewhere is a finite, multilingual-content discovery product for English-speaki
 - [Operations, testing and release](docs/08-operations-testing.md)
 - [Ticket-ready engineering tasks](docs/09-engineering-tasks.md)
 - [Decisions and risks](docs/10-decisions-risks.md)
+- [Confirmed product discussion and working design](docs/11-product-design-working-draft.md)
+- [Development setup and implementation status](docs/12-development.md)
 
 ## Core MVP contract
 
@@ -33,7 +35,14 @@ Next.js + TypeScript + Tailwind; FastAPI + Pydantic; PostgreSQL; optional pgvect
 
 ## Start coding
 
-Start with tickets T-001–T-004 in [engineering work packages](docs/09-engineering-tasks.md). This repository is a specification baseline, **not yet a working implementation**. Local commands described in operations documentation are implementation targets.
+The first development MVP is implemented in `apps/web` (Next.js) and `apps/api` (FastAPI), with PostgreSQL 16 via Compose. It follows the [confirmed product decisions](docs/11-product-design-working-draft.md): one shared daily edition, manual editorial selection, and no personalized ranking in v0.1.
+
+```bash
+make install
+make dev-up
+```
+
+See the [development guide](docs/12-development.md) for prerequisites, editor access, tests and implemented API differences. Ten real-source candidates are imported as **unreviewed drafts**; public editions remain empty until actual rights, editorial and regional delivery reviews are completed. This is a development MVP; production authentication, operational hardening and real content acceptance remain outstanding.
 
 ## Reference policies
 

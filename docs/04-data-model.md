@@ -1,5 +1,7 @@
 # PostgreSQL Data Model v0.1
 
+This is the original design baseline. The implemented editorial MVP uses a single source per discovery and globally shared daily slates, per the later product discussion. Executable schema lives in `apps/api/migrations/versions`; see [implementation differences](12-development.md#api-and-model-changes-from-the-v01-plans). Personalized-user, multi-asset and experiment structures below remain future targets.
+
 ## Model
 `SourceAsset` = canonical underlying video, article, image, thread or audio. `Discovery` = editorially chosen question/story (1–N assets). `ExperienceRevision` = versioned localized presentation and permitted delivery mode. Every rights decision is per action, linked to evidence and reviewer. Every published slate uses a frozen revision but current policy gates override stale visibility.
 

@@ -1,5 +1,7 @@
 # Elsewhere REST API Contract v0.1
 
+This is the original planned contract. The first implementation follows [the later scope decisions](11-product-design-working-draft.md): shared editorial daily editions, no personalization or Explore. See [the development guide](12-development.md#api-and-model-changes-from-the-v01-plans) for implemented differences and API `/docs` for executable request schemas.
+
 Prefix: `/api/v1`; JSON with ISO-8601 UTC timestamps. FastAPI must generate OpenAPI. Every response has `X-Request-ID`. Errors use `{"error":{"code":"INVALID_REQUEST","message":"...","request_id":"..."}}`. Client event POSTs and admin mutation support idempotency keys. Public GET has rate limits; admin endpoints require server-verified authentication/roles, never a client-supplied role.
 
 ## Public endpoints
