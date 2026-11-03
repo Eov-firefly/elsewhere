@@ -18,6 +18,7 @@ Elsewhere is a finite, multilingual-content discovery product for English-speaki
 - [Decisions and risks](docs/10-decisions-risks.md)
 - [Confirmed product discussion and working design](docs/11-product-design-working-draft.md)
 - [Development setup and implementation status](docs/12-development.md)
+- [Private reflection journal and voice-first input](docs/13-reflections-design.md)
 
 ## Core MVP contract
 

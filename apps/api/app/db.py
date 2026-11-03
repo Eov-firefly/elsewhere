@@ -12,6 +12,7 @@ class Settings(BaseSettings):
         "postgresql+psycopg://elsewhere:elsewhere@127.0.0.1:5432/elsewhere"
     )
     admin_token: str = ""
+    secure_cookies: bool = False
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parents[3] / ".env", extra="ignore"
     )

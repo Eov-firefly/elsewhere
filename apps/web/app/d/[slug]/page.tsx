@@ -3,6 +3,7 @@ import Link from "next/link";
 import { api, type Daily, type Detail } from "@/lib/api";
 import { Artwork, topics } from "@/components/cards";
 import { DiscoveryActions, SourcePlayer } from "@/components/discovery-actions";
+import { ReflectionComposer } from "@/components/reflection-composer";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -87,6 +88,7 @@ export default async function Discovery({
         independent editorial commentary.
       </p>
       <DiscoveryActions item={item} slateId={slateId} />
+      <ReflectionComposer discoveryId={item.id} slug={item.slug} />
       <div className="detail-ending">
         <p>There’s no need to finish it now.</p>
         <Link href="/">Return to your three discoveries ↗</Link>

@@ -11,11 +11,16 @@ async function proxy(
       { status: 400 },
     );
   const headers = new Headers({ "Content-Type": "application/json" });
-  for (const name of ["authorization", "x-guest-id", "idempotency-key"]) {
+  for (const name of [
+    "authorization",
+    "x-guest-id",
+    "idempotency-key",
+    "cookie",
+  ]) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
-  // No cookies or server-held admin secret are added to public requests.
+  // Forward this user's session only; never inject a server-held admin secret.
   const origin = request.headers.get("origin");
   // Next may normalize request.nextUrl.hostname to its internal bind hostname.
   // The HTTP Host is the browser-facing authority; never trust forwarded hosts.
@@ -46,13 +51,21 @@ async function proxy(
         redirect: "error",
       },
     );
+    const responseHeaders = new Headers({
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+      "X-Request-ID": upstream.headers.get("X-Request-ID") || "",
+    });
+    const cookie = upstream.headers.get("set-cookie");
+    if (cookie) responseHeaders.set("set-cookie", cookie);
+    if (upstream.headers.get("content-disposition"))
+      responseHeaders.set(
+        "content-disposition",
+        upstream.headers.get("content-disposition")!,
+      );
     return new Response(await upstream.text(), {
       status: upstream.status,
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store",
-        "X-Request-ID": upstream.headers.get("X-Request-ID") || "",
-      },
+      headers: responseHeaders,
     });
   } catch {
     return Response.json(

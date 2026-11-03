@@ -50,6 +50,15 @@ export default function Admin() {
   const [discoveries, setDiscoveries] = useState<Discovery[]>([]);
   const [audits, setAudits] = useState<Audit[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
+  const [reflectionReports, setReflectionReports] = useState<
+    {
+      id: string;
+      reason: string;
+      reflection_id: string | null;
+      body: string | null;
+      share_id: string | null;
+    }[]
+  >([]);
   const [selected, setSelected] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -76,16 +85,18 @@ export default function Admin() {
     return result;
   }
   async function refresh(page = offset) {
-    const [a, d, log, r] = await Promise.all([
+    const [a, d, log, r, notes] = await Promise.all([
       request(`assets?offset=${page}`),
       request(`discoveries?offset=${page}`),
       request("audit"),
       request("reports"),
+      request("reflection-reports"),
     ]);
     setAssets(a);
     setDiscoveries(d);
     setAudits(log);
     setReports(r);
+    setReflectionReports(notes);
     setAuthenticated(true);
   }
   async function mutate(path: string, body: unknown) {
@@ -116,6 +127,7 @@ export default function Admin() {
               setDiscoveries([]);
               setAudits([]);
               setReports([]);
+              setReflectionReports([]);
               setMessage("");
             }}
           >
@@ -663,6 +675,51 @@ export default function Admin() {
               ))
             ) : (
               <p>No reports.</p>
+            )}
+          </section>
+          <section className="quiet-box">
+            <h2>Shared reflection reports</h2>
+            {reflectionReports.length ? (
+              reflectionReports.map((report) => (
+                <article className="audit-row" key={report.id}>
+                  <p>
+                    <strong>Report:</strong> {report.reason}
+                  </p>
+                  {report.body ? (
+                    <>
+                      <p className="reflection-body">{report.body}</p>
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          void mutate(
+                            `reflections/${report.reflection_id}/hide`,
+                            {
+                              reason: String(
+                                new FormData(e.currentTarget).get("reason"),
+                              ),
+                            },
+                          );
+                        }}
+                      >
+                        <label>
+                          Moderation reason
+                          <input name="reason" required />
+                        </label>
+                        <button className="danger" disabled={busy}>
+                          Hide public reflection
+                        </button>
+                      </form>
+                    </>
+                  ) : (
+                    <p>
+                      The author has made this private or deleted it. Private
+                      text is not exposed to this desk.
+                    </p>
+                  )}
+                </article>
+              ))
+            ) : (
+              <p>No reflection reports.</p>
             )}
           </section>
           <section className="quiet-box">

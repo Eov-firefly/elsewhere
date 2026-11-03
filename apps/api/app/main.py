@@ -663,3 +663,8 @@ def reports(actor: str = Depends(admin), db: Session = Db):
         }
         for x in db.scalars(select(Report).order_by(Report.created_at.desc()).limit(50))
     ]
+
+
+from .journal import router as journal_router  # noqa: E402
+
+app.include_router(journal_router)

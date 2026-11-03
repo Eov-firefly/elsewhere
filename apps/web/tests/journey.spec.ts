@@ -41,13 +41,17 @@ test("finite daily edition, save, feedback, report and privacy reset", async ({
   await page
     .getByRole("button", { name: "Yes, worth it", exact: true })
     .click();
-  await expect(page.getByRole("status")).toContainText("Thank you");
+  await expect(page.locator(".action-panel").getByRole("status")).toContainText(
+    "Thank you",
+  );
   await page.getByRole("button", { name: "Report a problem" }).click();
   await page
     .getByLabel("What went wrong?")
     .fill("Synthetic browser test report");
   await page.getByRole("button", { name: "Send report" }).click();
-  await expect(page.getByRole("status")).toContainText("Report received");
+  await expect(page.locator(".action-panel").getByRole("status")).toContainText(
+    "Report received",
+  );
   await page
     .getByRole("link", { name: /Your collection/ })
     .first()

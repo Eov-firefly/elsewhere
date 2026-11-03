@@ -31,6 +31,7 @@ export default function Layout({
             <Link href="/saved">
               Your collection <span aria-hidden>↗</span>
             </Link>
+            <Link href="/journal">Your journal</Link>
           </nav>
         </header>
         <main id="main">{children}</main>

@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 from app.db import Base, get_db
 from app.main import app, requests
+from app.journal import attempts
 
 
 @pytest.fixture
@@ -52,6 +53,7 @@ def client(db):
     app.dependency_overrides[get_db] = lambda: db
     app.state.session_factory = lambda: nullcontext(db)
     requests.clear()
+    attempts.clear()
     with TestClient(app) as client:
         yield client
     app.dependency_overrides.clear()

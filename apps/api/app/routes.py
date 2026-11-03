@@ -24,7 +24,11 @@ class TransactionRoute(APIRoute):
                 try:
                     key = request.headers.get("idempotency-key")
                     scope = fingerprint = None
-                    if key and request.method == "POST":
+                    if (
+                        key
+                        and request.method == "POST"
+                        and not request.url.path.startswith("/api/v1/auth/")
+                    ):
                         if len(key) > 100:
                             raise HTTPException(
                                 400,
@@ -38,7 +42,15 @@ class TransactionRoute(APIRoute):
                             from .main import admin
 
                             admin(authorization)
-                        identity = authorization + request.headers.get("x-guest-id", "")
+                        if request.url.path.startswith("/api/v1/reflections"):
+                            from .journal import require_account
+
+                            await run_in_threadpool(require_account, request, db)
+                        identity = (
+                            authorization
+                            + request.headers.get("x-guest-id", "")
+                            + request.cookies.get("elsewhere_session", "")
+                        )
                         scope = hashlib.sha256(
                             f"{request.url.path}:{identity}:{key}".encode()
                         ).hexdigest()
@@ -69,7 +81,12 @@ class TransactionRoute(APIRoute):
                             return response
                     response = await handler(request)
                     if scope and response.status_code < 400:
-                        owner = request.headers.get("x-guest-id")
+                        account_id = getattr(request.state, "account_id", None)
+                        owner = (
+                            "account:" + account_id
+                            if account_id
+                            else request.headers.get("x-guest-id")
+                        )
                         db.add(
                             MutationReceipt(
                                 scope_key=scope,

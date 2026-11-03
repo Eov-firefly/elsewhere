@@ -177,3 +177,51 @@ class MutationReceipt(Base):
     response: Mapped[dict] = mapped_column(JSON)
     status_code: Mapped[int] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class Account(Base):
+    __tablename__ = "accounts"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    username: Mapped[str] = mapped_column(String(40), unique=True)
+    password_hash: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class AccountSession(Base):
+    __tablename__ = "account_sessions"
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    account_id: Mapped[str] = mapped_column(
+        ForeignKey("accounts.id", ondelete="CASCADE"), index=True
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class Reflection(Base):
+    __tablename__ = "reflections"
+    __table_args__ = (CheckConstraint("version >= 1"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    account_id: Mapped[str] = mapped_column(
+        ForeignKey("accounts.id", ondelete="CASCADE"), index=True
+    )
+    discovery_id: Mapped[str] = mapped_column(ForeignKey("discoveries.id"))
+    revision_id: Mapped[str] = mapped_column(ForeignKey("experience_revisions.id"))
+    body: Mapped[str] = mapped_column(Text)
+    watching_state: Mapped[str] = mapped_column(String(20))
+    mood: Mapped[str | None] = mapped_column(String(20))
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    share_id: Mapped[str | None] = mapped_column(String(40), unique=True)
+    moderation_state: Mapped[str] = mapped_column(String(20), default="clear")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=now, index=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class ReflectionReport(Base):
+    __tablename__ = "reflection_reports"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    reflection_id: Mapped[str | None] = mapped_column(
+        ForeignKey("reflections.id", ondelete="SET NULL")
+    )
+    reason: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
